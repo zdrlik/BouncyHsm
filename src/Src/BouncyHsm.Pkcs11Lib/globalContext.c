@@ -5,6 +5,11 @@
 #include "globalContext.h"
 #include "logger.h"
 
+
+#ifndef MAX_PATH
+#define MAX_PATH 260
+#endif
+
 #ifndef _WIN32
 #define FMT_HEADER_ONLY
 //#include <fmt/format.h>
@@ -147,7 +152,7 @@ void GetTemporaryDirectoryPath(char* buffer, size_t size)
         return;
     }
 
-    strncpy(buffer, tmpDir, size - 1);
+    strncpy_s(buffer, size, tmpDir, size - 1);
     buffer[size - 1] = '\0'; // Ensure null-termination
 }
 
@@ -160,7 +165,7 @@ void GetTempFilePath(char* buffer, size_t size, const char* fileName)
     size_t tempDirLen = strlen(tempDir);
     if (tempDir[tempDirLen - 1] != '\\')
     {
-        strncat(tempDir, "\\", sizeof(tempDir) - tempDirLen - 1);
+        strncat_s(tempDir, sizeof(tempDir), "\\", sizeof(tempDir) - tempDirLen - 1);
     }
 
     // Concatenate the temporary directory path with the file name
@@ -183,7 +188,7 @@ void GetTemporaryDirectoryPath(char* buffer, size_t size)
         return;
     }
 
-    strncpy(buffer, tmpDir, size - 1);
+    strncpy_s(buffer, size, tmpDir, size - 1);
     buffer[size - 1] = '\0'; // Ensure null-termination
 }
 
@@ -196,7 +201,7 @@ void GetTempFilePath(char* buffer, size_t size, const char* fileName)
     size_t tempDirLen = strlen(tempDir);
     if (tempDir[tempDirLen - 1] != '/')
     {
-        strncat(tempDir, "/", sizeof(tempDir) - tempDirLen - 1);
+        strncat_s(tempDir, sizeof(tempDir), "/", sizeof(tempDir) - tempDirLen - 1);
     }
 
     // Concatenate the temporary directory path with the file name
@@ -455,8 +460,13 @@ void GlobalContextInit()
     log_message(LOG_LEVEL_INFO, "Reading configuration from file: %s", configFilePath);
     fprintf(stdout, "Reading configuration from file: %s\n", configFilePath);
 
-	char* cfgString;    
-    if (!readVariableFromFile(configFilePath, &cfgString))
+	char* cfgString = NULL;
+	if (!envVariableDup(BOUNCY_HSM_CFG_STRING, &cfgString)){
+		log_message(LOG_LEVEL_ERROR, "Error during read configuration variable from the environment.");
+		return;
+	}
+
+    if (cfgString == NULL && !readVariableFromFile(configFilePath, &cfgString))
     {
         log_message(LOG_LEVEL_ERROR, "Error during read configuration variable from the file.");
         return;
