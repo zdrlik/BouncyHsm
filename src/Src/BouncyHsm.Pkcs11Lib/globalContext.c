@@ -5,7 +5,6 @@
 #include "globalContext.h"
 #include "logger.h"
 
-
 #ifndef MAX_PATH
 #define MAX_PATH 260
 #endif
@@ -201,7 +200,7 @@ void GetTempFilePath(char* buffer, size_t size, const char* fileName)
     size_t tempDirLen = strlen(tempDir);
     if (tempDir[tempDirLen - 1] != '/')
     {
-        strncat_s(tempDir, sizeof(tempDir), "/", sizeof(tempDir) - tempDirLen - 1);
+        strncat(tempDir, "/", sizeof(tempDir) - tempDirLen - 1);
     }
 
     // Concatenate the temporary directory path with the file name
@@ -454,23 +453,27 @@ void GlobalContextInit()
     strcpy_s(globalContext.tag, sizeof(globalContext.tag), "");
 	globalContext.port = BOUNCY_HSM_DEFAULT_PORT;
 
-	logger_init(LOG_LEVEL_ERROR_NAME, LOG_TARGET_ERR_CONSOLE);
-    char configFilePath[MAX_PATH];
-    GetTempFilePath(configFilePath, sizeof(configFilePath), BOUNCY_HSM_CFG_FILE_NAME);
-    log_message(LOG_LEVEL_INFO, "Reading configuration from file: %s", configFilePath);
-    fprintf(stdout, "Reading configuration from file: %s\n", configFilePath);
+	logger_init(LOG_LEVEL_ERROR_NAME, LOG_TARGET_ERR_CONSOLE);    
 
 	char* cfgString = NULL;
 	if (!envVariableDup(BOUNCY_HSM_CFG_STRING, &cfgString)){
 		log_message(LOG_LEVEL_ERROR, "Error during read configuration variable from the environment.");
 		return;
 	}
-
-    if (cfgString == NULL && !readVariableFromFile(configFilePath, &cfgString))
+    
+    if (cfgString == NULL)
     {
-        log_message(LOG_LEVEL_ERROR, "Error during read configuration variable from the file.");
-        return;
-    }
+        char configFilePath[MAX_PATH];
+        GetTempFilePath(configFilePath, sizeof(configFilePath), BOUNCY_HSM_CFG_FILE_NAME);
+        log_message(LOG_LEVEL_INFO, "Reading configuration from file: %s", configFilePath);
+        fprintf(stdout, "Reading configuration from file: %s\n", configFilePath);
+
+        if (!readVariableFromFile(configFilePath, &cfgString))
+        {
+            log_message(LOG_LEVEL_ERROR, "Error during read configuration variable from the file.");
+            return;
+        }
+    }    
     
 	if (cfgString != NULL)
 	{

@@ -179,8 +179,8 @@ bool logger_init(const char* level, const char* target)
 		return false;
 	}
 
-    globalLogLevelLevel = LOG_LEVEL_TRACE;
-    globalLogLevelTarget = send_log_message_console;
+    globalLogLevelLevel = localLevel;
+    globalLogLevelTarget = localTarget;
 
 	return true;
 }
