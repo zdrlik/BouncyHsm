@@ -16,7 +16,7 @@ services:
     container_name: bouncyhsmemulator
     ports:
       - "8500:8500"
-      - "8765:8765"     
+      - "8765:8765"         
     environment:
       - ASPNETCORE_URLS=http://*:8500
     networks:
