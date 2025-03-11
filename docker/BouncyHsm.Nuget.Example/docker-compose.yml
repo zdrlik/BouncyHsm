@@ -1,0 +1,26 @@
+services:
+  bouncyhsm.nuget.exampleconsoleapp:
+    image: ${DOCKER_REGISTRY-}bouncyhsmnugetexampleconsoleapp
+    build:
+      context: .
+      dockerfile: BouncyHsm.Nuget.ExampleConsoleApp/Dockerfile
+    environment:      
+      BOUNCY_HSM_CFG_STRING: "Server=bouncyhsmemulator; Port=8765; LogTarget=Console; LogLevel=TRACE;"
+    networks:
+      - bouncyhsmtestnetwork
+    depends_on: 
+      - bouncyhsmemulator
+
+  bouncyhsmemulator:
+    image: monetplus/bouncyhsm:latest 
+    container_name: bouncyhsmemulator
+    ports:
+      - "8500:8500"
+      - "8765:8765"         
+    environment:
+      - ASPNETCORE_URLS=http://*:8500
+    networks:
+      - bouncyhsmtestnetwork
+
+networks:
+  bouncyhsmtestnetwork:

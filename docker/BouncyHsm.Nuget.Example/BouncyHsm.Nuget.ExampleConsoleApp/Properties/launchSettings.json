@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "BouncyHsm.Nuget.ExampleConsoleApp": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
